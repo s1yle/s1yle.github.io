@@ -1,3 +1,27 @@
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+		
+@font-face {
+	font-family: 'huiwenfangsong';
+	src: url('../fonts/huiwenfangsong.ttf') format('truetype');
+}
+
+.avatar {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	overflow: hidden;
+}
+
+.avatar img {
+	width: 100%;
+	height: 100%;
+}
+
 .gradient-overlay {
     position: absolute;
     top: 0;
@@ -7,7 +31,84 @@
     /* background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0) 100%); */
 	
 	/* 清新蓝绿渐变 */
-	background: linear-gradient(135deg, #3f72af 0%, #dbe2ef 20%, rgba(0, 0, 0, 0) 100%);
+	/* background: linear-gradient(135deg, #3f72af 0%, #dbe2ef 20%, rgba(0, 0, 0, 0) 100%); */
+	/* background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 15%, rgba(0, 0, 0, 0) 100%); */
+	/* background: linear-gradient(332deg, #a1c4fd 0%, #c2e9fb 15%, rgba(0, 0, 0, 0) 100%); */
+	background: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%), 
+	radial-gradient(at top center, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0.40) 100%) #989898; 
+	background-blend-mode: multiply,multiply;
+	
+}
 
+@keyframes float{
+	0%{
+		transform: translateX(-20px);
+		transform: translateY(20px);
+	}
+	50%{
+		transform: translateX(20px);
+		transform: translateY(-20px);
+	}
+	100% {
+		transform: translateX(-20px);
+		transform: translateY(20px);
+	}
+}
 
+/* 动态粒子背景 */
+.particles {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+}
+
+.particle {
+	position: absolute;
+	border-radius: 50%;
+	/* background: rgba(106, 17, 203, 0.15); */
+	/* background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%); */
+	/* background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); */
+	/* background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%); */
+	/* background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%); */
+	background-image: linear-gradient(45deg, #878787 0%, #cccccc 100%);
+}
+
+/* 气泡粒子 */
+.bubbles-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	overflow: hidden;
+}
+
+.bubble {
+	position: absolute;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: bold;
+	color: rgba(255, 255, 255, 0.9);
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	cursor: default;
+	user-select: none;
+	transition: transform 0.3s ease;
+}
+
+.bubble:hover {
+	transform: scale(1.2) !important;
+	z-index: 2;
+	cursor: pointer;
+}
+
+.bubble-text {
+	text-align: center;
+	font-size: 1rem;
+	transform-origin: center;
 }
