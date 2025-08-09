@@ -1,0 +1,15 @@
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+	
+@font-face {
+	font-family: 'huiwenfangsong';
+	src: url('../fonts/huiwenfangsong.ttf') format('truetype');
+}
+h1, p, h2 {
+	font-family: huiwenfangsong;
+	/* color: #b9d7ea; */
+}
