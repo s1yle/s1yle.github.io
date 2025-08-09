@@ -108,9 +108,12 @@ button.j_button {
 	padding: 12px 24px;
 	background-color: #3d84a8;
 	color: #abedd8;
+	overflow: hidden;
+	border-radius: 18px;
 }
 button.j_button p {
 	color: #abedd8;
+	font-size: 18px;
 }
 
 .h_xcenter_ycenter {
