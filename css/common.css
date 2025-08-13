@@ -1,4 +1,8 @@
 
+@import url("../bootstrap-5.3.7-dist/css/bootstrap.min.css");
+@import url("raw_ss.css");
+
+
 .avatar {
 	width: 50px;
 	height: 50px;
@@ -72,7 +76,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 0;
+	z-index: -1;
 	overflow: hidden;
 }
 
@@ -93,7 +97,7 @@
 
 .bubble:hover {
 	transform: scale(1.2) !important;
-	z-index: 2;
+	z-index: 6;
 	cursor: pointer;
 }
 
@@ -104,21 +108,6 @@
 }
 
 
-button.j_button {
-	padding: 12px 24px;
-	background-color: #3d84a8;
-	color: #abedd8;
-	overflow: hidden;
-	border-radius: 18px;
-}
-button.j_button p {
-	color: #abedd8;
-	font-size: 18px;
-}
 
-.h_xcenter_ycenter {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
+
+@import url("font-awesome6.0.css");

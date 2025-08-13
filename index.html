@@ -2,21 +2,19 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title></title>
-		<link rel="stylesheet" type="text/css" href="css/raw_ss.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="css/raw_ss.css"/> -->
 		<link rel="stylesheet" type="text/css" href="css/common.css"/>
 		<link rel="stylesheet" type="text/css" href="css/index.css"/>
-		<link rel="stylesheet" type="text/css" href="css/font-awesome6.0.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="css/font-awesome6.0.css"/> -->
 	</head>
 	<body>
 		
-		<div class="bubbles-container" id="bubblesContainer"></div>
 		<!-- 欢迎页 -->
 		<div class="container" id="mainContainer">
-			<div class="container-background">
-				<div class="gradient-overlay"></div>
-			</div>
+			<div class="container-background"></div>
+			<div class="gradient-overlay"></div>
 			<div class="container_content">
 				<div class="avatar">
 					<img src="img/JOSHUA.jpg" >
@@ -24,153 +22,31 @@
 				
 				<div class="introduce h_xcenter_ycenter">
 					<h1>欢迎来到Joshua的网站！</h1>
-					<h2>爱好：编程 | 摄影 | 音乐</h2>
+					<!-- <h2>爱好：编程 | 摄影 | 音乐</h2> -->
 				</div>
 				
-				<button type="button" class="j_button" id="jinruzhuye"><p>进入主页</p></button>
+				<button type="button" class="j_button" id="jinruzhuye" onclick="toZhuye()">
+					<p>进入主页</p>
+				</button>
+				
+				<div class="page_bottom">
+					<div class="container">
+						<p>点击按钮可以进入我的主页~</p>
+						<p>个人简介：英文名是Joshua. 一个很无聊的人... 喜欢摄影、编程、音乐</p>
+						<p>Contact: mmili985@163.com</p>
+					</div>
+				</div>
+				<div class="bubbles-container" id="bubblesContainer"></div>
 			</div>
 		</div>
 		
 		<script src="js/jq.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bubbles.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
-		
-		
-			// 气泡粒子数据
-			const bubbleData = [
-				{ type: 'text', content: '电钻', color: 'rgba(106, 17, 203, 0.7)' },
-				{ type: 'text', content: '橡皮擦', color: 'rgba(37, 117, 252, 0.7)' },
-				{ type: 'text', content: '书', color: 'rgba(255, 193, 7, 0.7)' },
-				{ type: 'text', content: '微波炉', color: 'rgba(97, 218, 251, 0.7)' },
-				{ type: 'text', content: '沙发', color: 'rgba(65, 184, 131, 0.7)' },
-				{ type: 'text', content: '毛衣', color: 'rgba(83, 158, 67, 0.7)' },
-				{ type: 'icon', content: 'fa-code', color: 'rgba(255, 87, 34, 0.7)' },
-				{ type: 'icon', content: 'fa-paint-brush', color: 'rgba(156, 39, 176, 0.7)' },
-				{ type: 'icon', content: 'fa-mobile-alt', color: 'rgba(33, 150, 243, 0.7)' },
-				{ type: 'icon', content: 'fa-database', color: 'rgba(0, 150, 136, 0.7)' },
-				{ type: 'icon', content: 'fa-cloud', color: 'rgba(3, 169, 244, 0.7)' },
-				{ type: 'text', content: '椅子', color: 'rgba(233, 30, 99, 0.7)' },
-				{ type: 'text', content: '衣架', color: 'rgba(255, 152, 0, 0.7)' },
-				{ type: 'text', content: '活页夹', color: 'rgba(76, 175, 80, 0.7)' },
-				{ type: 'text', content: '桌布', color: 'rgba(207, 102, 121, 0.7)' },
-				{ type: 'icon', content: 'fa-server', color: 'rgba(121, 85, 72, 0.7)' },
-				{ type: 'icon', content: 'fa-rocket', color: 'rgba(244, 67, 54, 0.7)' },
-				{ type: 'text', content: 'Git', color: 'rgba(240, 98, 146, 0.7)' }
-			];
 			
-			// 创建气泡粒子
-			function createBubbles() {
-				const container = document.getElementById('bubblesContainer');
-				const bubbles = [];
-				
-				// 创建气泡
-				for (let i = 0; i < 20; i++) {
-					const bubble = document.createElement('div');
-					bubble.classList.add('bubble');
-					
-					// 随机选择气泡数据
-					const data = bubbleData[Math.floor(Math.random() * bubbleData.length)];
-					
-					// 设置气泡样式
-					const size = Math.random() * 80 + 30; // 30-110px
-					bubble.style.width = `${size}px`;
-					bubble.style.height = `${size}px`;
-					bubble.style.background = data.color;
-					bubble.style.boxShadow = `0 0 ${size/5}px ${data.color}`;
-					
-					// 设置初始位置
-					bubble.style.left = `${Math.random() * 80}%`;
-					bubble.style.top = `${Math.random() * 80}%`;
-					
-					// 添加内容
-					const content = document.createElement('div');
-					content.classList.add('bubble-text');
-					
-					if (data.type === 'icon') {
-						const icon = document.createElement('i');
-						icon.classList.add('fas', data.content);
-						content.appendChild(icon);
-					} else {
-						content.textContent = data.content;
-					}
-					
-					bubble.appendChild(content);
-					container.appendChild(bubble);
-					
-					// 保存气泡对象
-					bubbles.push({
-						element: bubble,
-						x: Math.random() * window.innerWidth,
-						y: Math.random() * window.innerHeight,
-						dx: (Math.random() - 0.5) * 2,
-						dy: (Math.random() - 0.5) * 2,
-						size: size
-					});
-				}
-				
-				return bubbles;
+			function toZhuye() {
+				location.href = 'pages/personal.html'
 			}
-			
-			// 更新气泡位置
-			function updateBubbles(bubbles) {
-				bubbles.forEach(bubble => {
-					// 更新位置
-					bubble.x += bubble.dx / 2;
-					bubble.y += bubble.dy / 2;
-					
-					// 边界检查
-					if (bubble.x <= 0 || bubble.x >= window.innerWidth - bubble.size) {
-						bubble.dx *= -1;
-					}
-					
-					if (bubble.y <= 0 || bubble.y >= window.innerHeight - bubble.size) {
-						bubble.dy *= -1;
-					}
-					
-					// 应用新位置
-					bubble.element.style.left = `${bubble.x}px`;
-					bubble.element.style.top = `${bubble.y}px`;
-					
-					// 缓慢旋转内容
-					const content = bubble.element.querySelector('.bubble-text');
-					const rotation = parseFloat(content.dataset.rotation || 0) + 0.02;
-					content.dataset.rotation = rotation;
-					content.style.transform = `rotate(${rotation}deg)`;
-				});
-				
-				requestAnimationFrame(() => updateBubbles(bubbles));
-			}
-	 
-			// 初始化
-			document.addEventListener('DOMContentLoaded', function() {
-				// 创建气泡
-				const bubbles = createBubbles();
-				
-				// 开始动画
-				updateBubbles(bubbles);
-				
-				// 添加悬浮动画
-				const mainVisual = document.querySelector('.main-visual');
-				mainVisual.addEventListener('mousemove', (e) => {
-					const rect = mainVisual.getBoundingClientRect();
-					const x = (e.clientX - rect.left) / rect.width - 0.5;
-					const y = (e.clientY - rect.top) / rect.height - 0.5;
-					
-					mainVisual.style.transform = `perspective(1000px) rotateX(${y * 8}deg) rotateY(${x * 8}deg)`;
-				});
-				
-				mainVisual.addEventListener('mouseleave', () => {
-					mainVisual.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-				});
-			});
-			
-			// 窗口大小调整时重新定位气泡
-			window.addEventListener('resize', function() {
-				const bubbles = document.querySelectorAll('.bubble');
-				bubbles.forEach(bubble => {
-					bubble.style.left = `${Math.random() * 100}%`;
-					bubble.style.top = `${Math.random() * 100}%`;
-				});
-			});
 				
 		</script>
 	</body>
