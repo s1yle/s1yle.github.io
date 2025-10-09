@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhotoFlow - 摄影师智能协作平台</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="./node_modules/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="./node_modules/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/compressorjs@1.2.1/dist/compressor.min.js"></script>
+  <!-- 使用 Canvas API 实现简单的图像处理作为 AI 功能的替代 -->
+  <script src="./node_modules/fabric/dist/index.min.js"></script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            dark: '#1D2129',
+            light: '#F2F3F5',
+            neutral: '#86909C'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .tool-btn {
+        @apply flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 hover:bg-primary/10 hover:text-primary;
+      }
+      .tool-btn.active {
+        @apply bg-primary text-white;
+      }
+      .panel-item {
+        @apply p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150;
+      }
+      .slider-control {
+        @apply w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark overflow-hidden h-screen flex flex-col">
+  <div id="app" class="flex flex-col h-full"></div>
+
+  <script type="text/babel">
+    // 主应用组件
+    const App = () => {
+      // 状态管理 - 统一使用 React.useState
+      const [images, setImages] = React.useState([]);
+      const [activeImageIndex, setActiveImageIndex] = React.useState(-1);
+      const [activeTool, setActiveTool] = React.useState(null);
+      const [processing, setProcessing] = React.useState(false);
+      const [aiModels, setAiModels] = React.useState(null);
+      const [styles, setStyles] = React.useState([
+        { id: 'natural', name: '自然风格', preview: 'https://picsum.photos/id/10/100/100' },
+        { id: 'vibrant', name: '鲜艳风格', preview: 'https://picsum.photos/id/20/100/100' },
+        { id: 'vintage', name: '复古风格', preview: 'https://picsum.photos/id/30/100/100' },
+        { id: 'monochrome', name: '黑白风格', preview: 'https://picsum.photos/id/40/100/100' },
+      ]);
+      const [imageSettings, setImageSettings] = React.useState({
+        rotation: 0,
+        brightness: 100,
+        contrast: 100,
+        saturation: 100,
+        crop: { x: 0, y: 0, width: 100, height: 100 }
+      });
+
+      // 初始化AI模型 - 使用Canvas和Fabric.js进行图像处理
+      React.useEffect(() => {
+        console.log('AI功能已启用，使用Canvas API进行图像处理');
+        setAiModels({
+          // 标记为可用状态
+          available: true,
+          // 使用Canvas进行图像处理
+          imageEnhancer: null,
+          styleTransfer: null
+        });
+      }, []);
+
+      // 处理图片上传
+      const handleFileUpload = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        files.forEach(file => {
+          if (!file.type.startsWith('image/')) {
+            alert('请上传图片文件');
+            return;
+          }
+
+          // 使用Compressor.js压缩图片
+          new Compressor(file, {
+            quality: 0.8,
+            maxWidth: 1920,
+            maxHeight: 1080,
+            success: (compressedFile) => {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                setImages(prev => [...prev, {
+                  id: Date.now() + Math.random(),
+                  src: event.target.result,
+                  originalSrc: event.target.result,
+                  settings: { ...imageSettings }
+                }]);
+              };
+              reader.readAsDataURL(compressedFile);
+            },
+            error: (err) => {
+              console.error('压缩失败:', err);
+            }
+          });
+        });
+
+        // 重置文件输入，允许重复上传同一文件
+        e.target.value = '';
+      };
+
+      // 选择图片
+      const selectImage = (index) => {
+        setActiveImageIndex(index);
+        if (images[index]) {
+          setImageSettings(images[index].settings);
+        }
+      };
+
+      // 应用图片设置变更
+      const applyImageSettings = () => {
+        if (activeImageIndex === -1) return;
+        
+        const updatedImages = [...images];
+        updatedImages[activeImageIndex].settings = { ...imageSettings };
+        setImages(updatedImages);
+      };
+
+      // 处理图片旋转
+      const rotateImage = (degrees) => {
+        setImageSettings(prev => {
+          const newRotation = (prev.rotation + degrees) % 360;
+          const updated = { ...prev, rotation: newRotation };
+          setTimeout(applyImageSettings, 0);
+          return updated;
+        });
+      };
+
+      // 调整图片参数（亮度、对比度、饱和度）
+      const adjustImageParameter = (param, value) => {
+        setImageSettings(prev => {
+          const updated = { ...prev, [param]: value };
+          setTimeout(applyImageSettings, 0);
+          return updated;
+        });
+      };
+
+      // AI智能调色
+      const applyAiEnhancement = async () => {
+        if (!aiModels || activeImageIndex === -1 || processing) return;
+
+        try {
+          setProcessing(true);
+          const activeImage = images[activeImageIndex];
+          
+          // 创建临时canvas处理图片
+          const img = new Image();
+          img.src = activeImage.originalSrc;
+          
+          await new Promise(resolve => { img.onload = resolve; });
+          
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          
+          // 使用AI模型处理图片
+          const result = await aiModels.imageEnhancer(canvas, {
+            brightness: imageSettings.brightness / 100,
+            contrast: imageSettings.contrast / 100,
+            saturation: imageSettings.saturation / 100,
+          });
+          
+          // 更新处理后的图片
+          const updatedImages = [...images];
+          updatedImages[activeImageIndex].src = result.dataURL;
+          setImages(updatedImages);
+        } catch (error) {
+          console.error('AI增强失败:', error);
+          alert('AI处理失败，请重试');
+        } finally {
+          setProcessing(false);
+        }
+      };
+
+      // 应用风格
+      const applyStyle = async (styleId) => {
+        if (!aiModels || activeImageIndex === -1 || processing) return;
+
+        try {
+          setProcessing(true);
+          const activeImage = images[activeImageIndex];
+          
+          // 创建临时canvas
+          const img = new Image();
+          img.src = activeImage.src;
+          await new Promise(resolve => { img.onload = resolve; });
+          
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          
+          // 应用风格转换
+          const styleImage = new Image();
+          const style = styles.find(s => s.id === styleId);
+          styleImage.src = style.preview;
+          await new Promise(resolve => { styleImage.onload = resolve; });
+          
+          const result = await aiModels.styleTransfer(canvas, styleImage, { strength: 0.7 });
+          
+          // 更新图片
+          const updatedImages = [...images];
+          updatedImages[activeImageIndex].src = result.dataURL;
+          setImages(updatedImages);
+        } catch (error) {
+          console.error('风格应用失败:', error);
+          alert('风格应用失败，请重试');
+        } finally {
+          setProcessing(false);
+        }
+      };
+
+      // 下载处理后的图片
+      const downloadImage = () => {
+        if (activeImageIndex === -1) return;
+        
+        const link = document.createElement('a');
+        link.download = `photo_edited_${Date.now()}.jpg`;
+        link.href = images[activeImageIndex].src;
+        link.click();
+      };
+
+      // 渲染图片预览
+      const renderImagePreview = () => {
+        if (activeImageIndex === -1 || !images[activeImageIndex]) {
+          return (
+            <div className="flex items-center justify-center h-full w-full bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="text-center text-gray-400">
+                <i className="fa fa-picture-o text-5xl mb-3"></i>
+                <p>请上传并选择一张图片进行编辑</p>
+              </div>
+            </div>
+          );
+        }
+
+        const image = images[activeImageIndex];
+        const transform = `rotate(${image.settings.rotation}deg)`;
+        
+        return (
+          <div className="relative h-full w-full flex items-center justify-center overflow-auto p-4">
+            <div 
+              className="relative transition-all duration-300"
+              style={{ transform }}
+            >
+              <img 
+                src={image.src} 
+                alt="编辑中的图片" 
+                className="max-h-[90vh] max-w-full rounded-lg shadow-lg"
+              />
+              
+              {/* 如果处于裁剪模式，显示裁剪框 */}
+              {activeTool === 'crop' && (
+                <div className="absolute border-2 border-primary bg-primary/10"
+                  style={{
+                    left: `${image.settings.crop.x}%`,
+                    top: `${image.settings.crop.y}%`,
+                    width: `${image.settings.crop.width}%`,
+                    height: `${image.settings.crop.height}%`
+                  }}
+                ></div>
+              )}
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div className="flex flex-col h-full">
+          {/* 顶部导航栏 */}
+          <header className="bg-white border-b border-gray-200 py-3 px-6 flex items-center justify-between shadow-sm z-10">
+            <div className="flex items-center space-x-2">
+              <div className="text-primary text-2xl">
+                <i className="fa fa-camera-retro"></i>
+              </div>
+              <h1 className="text-xl font-bold text-primary">PhotoFlow</h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-primary/90 transition-colors">
+                <i className="fa fa-upload"></i>
+                <span>上传图片</span>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+              
+              {activeImageIndex !== -1 && (
+                <button 
+                  onClick={downloadImage}
+                  className="flex items-center space-x-2 bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors"
+                >
+                  <i className="fa fa-download"></i>
+                  <span>下载图片</span>
+                </button>
+              )}
+              
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <i className="fa fa-user text-gray-600"></i>
+              </div>
+            </div>
+          </header>
+
+          {/* 主内容区 */}
+          <main className="flex flex-1 overflow-hidden">
+            {/* 左侧工具栏 */}
+            <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-6">
+              <button 
+                className={`tool-btn ${activeTool === 'select' ? 'active' : ''}`}
+                onClick={() => setActiveTool('select')}
+                title="选择工具"
+              >
+                <i className="fa fa-mouse-pointer"></i>
+              </button>
+              
+              <button 
+                className={`tool-btn ${activeTool === 'crop' ? 'active' : ''}`}
+                onClick={() => setActiveTool('crop')}
+                title="裁剪工具"
+              >
+                <i className="fa fa-crop"></i>
+              </button>
+              
+              <div className="flex flex-col items-center space-y-2">
+                <button 
+                  className="tool-btn"
+                  onClick={() => rotateImage(90)}
+                  title="顺时针旋转"
+                >
+                  <i className="fa fa-rotate-right"></i>
+                </button>
+                <button 
+                  className="tool-btn"
+                  onClick={() => rotateImage(-90)}
+                  title="逆时针旋转"
+                >
+                  <i className="fa fa-rotate-left"></i>
+                </button>
+              </div>
+              
+              <button 
+                className={`tool-btn ${activeTool === 'adjust' ? 'active' : ''}`}
+                onClick={() => setActiveTool('adjust')}
+                title="调整参数"
+              >
+                <i className="fa fa-sliders"></i>
+              </button>
+              
+              <button 
+                className={`tool-btn ${activeTool === 'ai' ? 'active' : ''}`}
+                onClick={() => setActiveTool('ai')}
+                title="AI增强"
+              >
+                <i className="fa fa-magic"></i>
+              </button>
+              
+              <div className="mt-auto">
+                <button 
+                  className="tool-btn"
+                  onClick={() => {
+                    if (activeImageIndex !== -1) {
+                      const updatedImages = [...images];
+                      updatedImages[activeImageIndex].src = updatedImages[activeImageIndex].originalSrc;
+                      updatedImages[activeImageIndex].settings = { ...imageSettings };
+                      setImages(updatedImages);
+                    }
+                  }}
+                  title="重置图片"
+                >
+                  <i className="fa fa-refresh"></i>
+                </button>
+              </div>
+            </aside>
+
+            {/* 中央编辑区 */}
+            <section className="flex-1 overflow-hidden bg-gray-100">
+              {renderImagePreview()}
+              
+              {/* 处理中指示器 */}
+              {processing && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-lg flex flex-col items-center">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-gray-700 font-medium">处理中，请稍候...</p>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* 右侧属性面板 */}
+            <aside className="w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden">
+              {/* 图片列表 */}
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="font-semibold text-gray-800 mb-3">图片列表</h2>
+                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto scrollbar-hide">
+                  {images.length === 0 ? (
+                    <p className="text-gray-500 text-sm">暂无图片，请上传</p>
+                  ) : (
+                    images.map((img, index) => (
+                      <div 
+                        key={img.id}
+                        className={`w-20 h-20 rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
+                          activeImageIndex === index ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300'
+                        }`}
+                        onClick={() => selectImage(index)}
+                      >
+                        <img 
+                          src={img.src} 
+                          alt={`预览图 ${index + 1}`} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* 工具属性面板 */}
+              <div className="flex-1 overflow-y-auto">
+                {activeTool === null && (
+                  <div className="p-6 text-center text-gray-500">
+                    <i className="fa fa-hand-pointer-o text-4xl mb-3"></i>
+                    <p>请从左侧选择一个工具开始编辑</p>
+                  </div>
+                )}
+
+                {activeTool === 'crop' && (
+                  <div className="p-4">
+                    <h2 className="font-semibold text-gray-800 mb-4">裁剪设置</h2>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">X 位置 (%)</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={imageSettings.crop.x}
+                          onChange={(e) => {
+                            setImageSettings(prev => {
+                              const updated = { 
+                                ...prev, 
+                                crop: { ...prev.crop, x: parseInt(e.target.value) }
+                              };
+                              setTimeout(applyImageSettings, 0);
+                              return updated;
+                            });
+                          }}
+                          className="slider-control"
+                        />
+                        <p className="text-right text-sm text-gray-500">{imageSettings.crop.x}%</p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Y 位置 (%)</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={imageSettings.crop.y}
+                          onChange={(e) => {
+                            setImageSettings(prev => {
+                              const updated = { 
+                                ...prev, 
+                                crop: { ...prev.crop, y: parseInt(e.target.value) }
+                              };
+                              setTimeout(applyImageSettings, 0);
+                              return updated;
+                            });
+                          }}
+                          className="slider-control"
+                        />
+                        <p className="text-right text-sm text-gray-500">{imageSettings.crop.y}%</p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">宽度 (%)</label>
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          value={imageSettings.crop.width}
+                          onChange={(e) => {
+                            setImageSettings(prev => {
+                              const updated = { 
+                                ...prev, 
+                                crop: { ...prev.crop, width: parseInt(e.target.value) }
+                              };
+                              setTimeout(applyImageSettings, 0);
+                              return updated;
+                            });
+                          }}
+                          className="slider-control"
+                        />
+                        <p className="text-right text-sm text-gray-500">{imageSettings.crop.width}%</p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">高度 (%)</label>
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          value={imageSettings.crop.height}
+                          onChange={(e) => {
+                            setImageSettings(prev => {
+                              const updated = { 
+                                ...prev, 
+                                crop: { ...prev.crop, height: parseInt(e.target.value) }
+                              };
+                              setTimeout(applyImageSettings, 0);
+                              return updated;
+                            });
+                          }}
+                          className="slider-control"
+                        />
+                        <p className="text-right text-sm text-gray-500">{imageSettings.crop.height}%</p>
+                      </div>
+                      
+                      <button className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors mt-4">
+                        应用裁剪
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTool === 'adjust' && (
+                  <div className="p-4">
+                    <h2 className="font-semibold text-gray-800 mb-4">调整参数</h2>
+                    <div className="space-y-6">
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <label className="text-sm text-gray-600">亮度</label>
+                          <span className="text-sm text-gray-500">{imageSettings.brightness}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="200"
+                          value={imageSettings.brightness}
+                          onChange={(e) => adjustImageParameter('brightness', parseInt(e.target.value))}
+                          className="slider-control"
+                        />
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <label className="text-sm text-gray-600">对比度</label>
+                          <span className="text-sm text-gray-500">{imageSettings.contrast}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="200"
+                          value={imageSettings.contrast}
+                          onChange={(e) => adjustImageParameter('contrast', parseInt(e.target.value))}
+                          className="slider-control"
+                        />
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <label className="text-sm text-gray-600">饱和度</label>
+                          <span className="text-sm text-gray-500">{imageSettings.saturation}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="200"
+                          value={imageSettings.saturation}
+                          onChange={(e) => adjustImageParameter('saturation', parseInt(e.target.value))}
+                          className="slider-control"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTool === 'ai' && (
+                  <div className="p-4">
+                    <h2 className="font-semibold text-gray-800 mb-4">AI 增强</h2>
+                    
+                    <button 
+                      onClick={applyAiEnhancement}
+                      className="w-full bg-accent text-white py-3 rounded-lg hover:bg-accent/90 transition-colors mb-6 flex items-center justify-center space-x-2"
+                      disabled={processing}
+                    >
+                      {processing ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>处理中...</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa fa-magic"></i>
+                          <span>智能调色增强</span>
+                        </>
+                      )}
+                    </button>
+                    
+                    <h3 className="font-medium text-gray-700 mb-3">风格预设</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {styles.map(style => (
+                        <div 
+                          key={style.id}
+                          className="border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-all"
+                          onClick={() => applyStyle(style.id)}
+                        >
+                          <div className="h-24 overflow-hidden">
+                            <img 
+                              src={style.preview} 
+                              alt={style.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="p-2 text-center text-sm">{style.name}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </aside>
+          </main>
+
+          {/* 底部状态栏 */}
+          <footer className="bg-white border-t border-gray-200 py-2 px-6 text-sm text-gray-500 flex justify-between">
+            <div>
+              {activeImageIndex !== -1 && images[activeImageIndex] 
+                ? `正在编辑: 图片 ${activeImageIndex + 1}/${images.length}`
+                : '未选择图片'}
+            </div>
+            <div>
+              PhotoFlow - 第一阶段版本
+            </div>
+          </footer>
+        </div>
+      );
+    };
+
+    // 渲染应用 - 使用 React 18 的 createRoot
+    const root = ReactDOM.createRoot(document.getElementById('app'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

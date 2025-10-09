@@ -1,0 +1,23 @@
+{
+  "name": "photostudio",
+  "version": "0.0.1",
+  "description": "an app helps photographor to work more efficiently",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "asdf"
+  ],
+  "author": "mathfor9",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/standalone": "^7.28.4",
+    "compressorjs": "^1.2.1",
+    "fabric": "^6.7.1",
+    "font-awesome": "^4.7.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind": "^4.0.0"
+  }
+}

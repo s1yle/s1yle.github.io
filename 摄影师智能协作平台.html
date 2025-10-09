@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摄影师全流程智能协作平台开发文档</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        // Tailwind配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调：专业蓝
+                        secondary: '#4f46e5', // 辅助色：科技紫
+                        accent: '#0ea5e9', // 强调色：亮蓝
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                        neutral: '#64748b', // 中性色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .bg-gradient-blue {
+                background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background-color: rgba(100, 116, 139, 0.5);
+                border-radius: 3px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white shadow-md transition-all duration-300">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-camera-retro text-primary text-2xl"></i>
+                    <h1 class="text-xl sm:text-2xl font-bold text-primary">摄影师智能协作平台</h1>
+                </div>
+                
+                <!-- 桌面端导航 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#overview" class="text-gray-600 hover:text-primary transition-colors font-medium">项目概述</a>
+                    <a href="#architecture" class="text-gray-600 hover:text-primary transition-colors font-medium">技术架构</a>
+                    <a href="#features" class="text-gray-600 hover:text-primary transition-colors font-medium">核心功能</a>
+                    <a href="#cloud" class="text-gray-600 hover:text-primary transition-colors font-medium">云存储</a>
+                    <a href="#testing" class="text-gray-600 hover:text-primary transition-colors font-medium">测试保障</a>
+                    <a href="#future" class="text-gray-600 hover:text-primary transition-colors font-medium">未来规划</a>
+                </nav>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="menuBtn" class="md:hidden text-gray-600 hover:text-primary focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <a href="#overview" class="block text-gray-600 hover:text-primary py-2 transition-colors">项目概述</a>
+                <a href="#architecture" class="block text-gray-600 hover:text-primary py-2 transition-colors">技术架构</a>
+                <a href="#features" class="block text-gray-600 hover:text-primary py-2 transition-colors">核心功能</a>
+                <a href="#cloud" class="block text-gray-600 hover:text-primary py-2 transition-colors">云存储</a>
+                <a href="#testing" class="block text-gray-600 hover:text-primary py-2 transition-colors">测试保障</a>
+                <a href="#future" class="block text-gray-600 hover:text-primary py-2 transition-colors">未来规划</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="bg-gradient-blue text-white py-12 sm:py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-shadow">摄影师全流程智能协作平台</h1>
+                <p class="text-lg sm:text-xl opacity-90 mb-8">效率提升、风格统一、版权无忧的一站式摄影解决方案</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#overview" class="bg-white text-primary hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition-all shadow-lg hover:shadow-xl">
+                        <i class="fa fa-book mr-2"></i>开始阅读
+                    </a>
+                    <a href="#features" class="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-lg font-medium transition-all">
+                        <i class="fa fa-cogs mr-2"></i>核心功能
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要内容区域 -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- 项目概述部分 -->
+        <section id="overview" class="mb-20">
+            <div class="max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-4">一、项目概述</h2>
+                
+                <!-- 产品定位与目标 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-bullseye text-primary mr-3"></i>1.1 产品定位与目标
+                    </h3>
+                    <p class="text-gray-700 mb-4">
+                        本项目旨在打造一个基于Web技术栈的全流程摄影协作平台，为摄影师提供从拍摄到交付的一站式解决方案。产品以"效率提升、风格统一、版权无忧"为核心价值主张，通过自动化处理、智能调色、风格统一和全面版权保护等核心功能，帮助摄影师提升工作效率、保持风格一致性并保护知识产权。
+                    </p>
+                    <p class="text-gray-700">
+                        产品初期将聚焦于核心修图功能的实现，后续逐步拓展至版权保护和云存储功能，最终形成完整的摄影师工作流生态系统。项目采用"Web三件套"(HTML/CSS/JS)及相关生态技术进行开发，确保产品具备易用性、高开发效率和跨平台能力。
+                    </p>
+                </div>
+                
+                <!-- 技术栈选择 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-code text-primary mr-3"></i>1.2 技术栈选择
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <!-- 前端技术栈 -->
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                            <h4 class="text-lg font-medium text-primary mb-3 flex items-center">
+                                <i class="fa fa-desktop mr-2"></i>前端技术栈
+                            </h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>HTML/CSS/JavaScript</strong>：基础技术栈，确保跨平台兼容性</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>React</strong>：构建交互式用户界面，提升开发效率</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>TailwindCSS</strong>：实用优先的CSS框架，加速UI开发</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>@xenova/transformers</strong>：浏览器端AI图像处理</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>Compressor.js</strong>：轻量级图片压缩库</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>Photon</strong>：基于Rust的高性能图片处理库</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 后端技术栈 -->
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                            <h4 class="text-lg font-medium text-primary mb-3 flex items-center">
+                                <i class="fa fa-server mr-2"></i>后端技术栈
+                            </h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>Node.js</strong>：构建服务器端应用</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>Express</strong>：轻量级Web框架，用于API开发</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>MongoDB</strong>：NoSQL数据库，存储用户数据</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>Sharp</strong>：高性能Node.js图像处理库</span>
+                                </li>
+                            </ul>
+                            
+                            <h4 class="text-lg font-medium text-primary mt-5 mb-3 flex items-center">
+                                <i class="fa fa-cloud mr-2"></i>云服务
+                            </h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>百度网盘API</strong>：提供云存储服务</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span><strong>支付宝/微信支付API</strong>：实现付费订阅</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 开发目标与阶段划分 -->
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-road text-primary mr-3"></i>1.3 开发目标与阶段划分
+                    </h3>
+                    
+                    <div class="relative">
+                        <!-- 时间线 -->
+                        <div class="absolute left-0 md:left-1/2 h-full w-0.5 bg-primary/20 transform md:-translate-x-1/2"></div>
+                        
+                        <!-- 第一阶段 -->
+                        <div class="relative mb-10 md:mb-16">
+                            <div class="flex flex-col md:flex-row items-center">
+                                <div class="md:w-1/2 md:pr-12 md:text-right mb-4 md:mb-0">
+                                    <div class="bg-primary/10 p-4 rounded-lg">
+                                        <h4 class="text-xl font-semibold text-primary mb-2">第一阶段（核心修图功能）</h4>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li>• 实现图片批量导入与基础处理</li>
+                                            <li>• 完成AI智能调色和风格学习</li>
+                                            <li>• 实现基本的图片编辑工具</li>
+                                            <li>• 构建基础的用户界面和交互</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full transform -translate-x-1/2"></div>
+                                <div class="md:w-1/2 md:pl-12"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 第二阶段 -->
+                        <div class="relative mb-10 md:mb-16">
+                            <div class="flex flex-col md:flex-row items-center">
+                                <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
+                                <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full transform -translate-x-1/2"></div>
+                                <div class="md:w-1/2 md:pl-12">
+                                    <div class="bg-primary/10 p-4 rounded-lg">
+                                        <h4 class="text-xl font-semibold text-primary mb-2">第二阶段（版权保护功能）</h4>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li>• 实现全方位水印解决方案</li>
+                                            <li>• 集成版权信息嵌入功能</li>
+                                            <li>• 开发分享与传播控制功能</li>
+                                            <li>• 实现区块链存证功能</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 第三阶段 -->
+                        <div class="relative">
+                            <div class="flex flex-col md:flex-row items-center">
+                                <div class="md:w-1/2 md:pr-12 md:text-right mb-4 md:mb-0">
+                                    <div class="bg-primary/10 p-4 rounded-lg">
+                                        <h4 class="text-xl font-semibold text-primary mb-2">第三阶段（云存储与协作）</h4>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li>• 实现与百度网盘的集成</li>
+                                            <li>• 开发团队协作功能</li>
+                                            <li>• 构建完整的用户账户系统</li>
+                                            <li>• 实现多设备同步功能</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full transform -translate-x-1/2"></div>
+                                <div class="md:w-1/2 md:pl-12"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 技术架构设计部分 -->
+        <section id="architecture" class="mb-20">
+            <div class="max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-4">二、技术架构设计</h2>
+                
+                <!-- 系统总体架构 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-sitemap text-primary mr-3"></i>2.1 系统总体架构
+                    </h3>
+                    <p class="text-gray-700 mb-6">
+                        本系统采用分层架构设计，分为表现层、业务逻辑层和数据层，各层之间通过清晰的接口进行交互，确保系统的可扩展性和可维护性。
+                    </p>
+                    
+                    <!-- 架构图 -->
+                    <div class="bg-gray-50 p-4 sm:p-6 rounded-lg overflow-x-auto">
+                        <div class="min-w-[600px]">
+                            <!-- 客户端部分 -->
+                            <div class="mb-8">
+                                <div class="text-center font-semibold text-primary mb-3">客户端浏览器</div>
+                                <div class="border-2 border-primary rounded-lg p-3 mx-auto max-w-md">
+                                    <!-- 表现层 -->
+                                    <div class="mb-4">
+                                        <div class="text-center font-medium text-gray-800 mb-2 bg-primary/10 p-2 rounded">表现层（React组件）</div>
+                                        <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                                            <div class="bg-white border border-gray-200 p-2 rounded">图片编辑器</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">智能处理模块</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">用户界面组件</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 业务逻辑层 -->
+                                    <div class="mb-4">
+                                        <div class="text-center font-medium text-gray-800 mb-2 bg-primary/10 p-2 rounded">业务逻辑层（JavaScript）</div>
+                                        <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                                            <div class="bg-white border border-gray-200 p-2 rounded">AI图像处理算法</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">版权保护逻辑</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">云存储集成</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 数据层 -->
+                                    <div>
+                                        <div class="text-center font-medium text-gray-800 mb-2 bg-primary/10 p-2 rounded">数据层（浏览器本地存储）</div>
+                                        <div class="grid grid-cols-2 gap-2 text-center text-sm">
+                                            <div class="bg-white border border-gray-200 p-2 rounded">临时文件存储</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">用户设置存储</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 服务器端部分 -->
+                            <div>
+                                <div class="text-center font-semibold text-primary mb-3">服务器端（Node.js）</div>
+                                <div class="border-2 border-secondary rounded-lg p-3 mx-auto max-w-md">
+                                    <!-- API接口层 -->
+                                    <div class="mb-4">
+                                        <div class="text-center font-medium text-gray-800 mb-2 bg-secondary/10 p-2 rounded">API接口层（Express）</div>
+                                        <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                                            <div class="bg-white border border-gray-200 p-2 rounded">用户认证API</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">图像处理API</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">版权管理API</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 数据层 -->
+                                    <div>
+                                        <div class="text-center font-medium text-gray-800 mb-2 bg-secondary/10 p-2 rounded">数据层（MongoDB）</div>
+                                        <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                                            <div class="bg-white border border-gray-200 p-2 rounded">用户数据</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">作品元数据</div>
+                                            <div class="bg-white border border-gray-200 p-2 rounded">系统配置</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 关键技术实现 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-cogs text-primary mr-3"></i>2.2 关键技术实现
+                    </h3>
+                    
+                    <!-- AI图像处理技术 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-magic text-primary mr-2"></i>2.2.1 AI图像处理技术
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            本系统采用@xenova/transformers库实现浏览器端AI图像处理功能，利用WebGPU加速模型推理，大幅提升处理效率。核心处理流程包括图像预处理、模型推理和结果后处理。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>// 使用Transformer.js进行图像修复的示例代码
+import { pipeline } from '@xenova/transformers';
+
+const inpaintingPipeline = await pipeline('image-to-image', 'Xenova/inpaint-web');
+const result = await inpaintingPipeline(inputImage, mask);</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 高效图片处理技术 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-picture-o text-primary mr-2"></i>2.2.2 高效图片处理技术
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            系统采用多种技术实现高效的图片处理，包括Compressor.js、Photon和Sharp等库，确保在客户端和服务器端都能实现高性能的图像处理。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+                            <pre>// 使用Compressor.js进行图片压缩的示例代码
+new Compressor(file, {
+  quality: 0.8,
+  maxWidth: 1920,
+  maxHeight: 1080,
+  success(result) {
+    // 处理压缩后的图片
+  },
+  error(err) {
+    console.error('压缩失败:', err);
+  }
+});</pre>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-primary mb-2">Photon</h5>
+                                <p class="text-gray-700 text-sm">基于Rust的高性能图片处理库，通过WebAssembly实现高效的图像处理，支持超过80种图片处理效果。</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-primary mb-2">Sharp</h5>
+                                <p class="text-gray-700 text-sm">用于服务器端图像处理，提供卓越的性能和内存效率，比传统工具快4-5倍。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 版权保护技术 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-shield text-primary mr-2"></i>2.2.3 版权保护技术
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            系统采用多层次的版权保护技术，包括可见水印与隐形水印结合、EXIF信息嵌入和区块链元数据保护等。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>// 使用exif-js添加版权信息的示例代码
+EXIF.getData(result, function() {
+  EXIF.setTag(this, "Copyright", "© 2025 PhotoStudio");
+  EXIF.setTag(this, "Artist", "John Doe");
+  const newDataUrl = EXIF.write(this);
+});</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 云存储集成技术 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-cloud text-primary mr-2"></i>2.2.4 云存储集成技术
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            系统将与百度网盘API进行集成，提供云存储服务，实现文件上传与下载、文件同步和版本管理等功能。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-upload text-primary text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">文件上传下载</h5>
+                                <p class="text-gray-600 text-sm">实现图片的安全存储和便捷访问</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-refresh text-primary text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">文件同步</h5>
+                                <p class="text-gray-600 text-sm">实现多设备间的自动同步功能</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-history text-primary text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">版本管理</h5>
+                                <p class="text-gray-600 text-sm">提供文件版本管理和恢复功能</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 开发环境配置 -->
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-cogs text-primary mr-3"></i>2.3 开发环境配置
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <!-- 开发工具链 -->
+                        <div>
+                            <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                                <i class="fa fa-wrench text-primary mr-2"></i>2.3.1 开发工具链
+                            </h4>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <h5 class="font-medium text-primary mb-2">代码编辑器</h5>
+                                    <ul class="space-y-1 text-gray-700 pl-5 list-disc">
+                                        <li>Visual Studio Code</li>
+                                        <li>Cursor（AI辅助编程工具）</li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium text-primary mb-2">包管理工具</h5>
+                                    <ul class="space-y-1 text-gray-700 pl-5 list-disc">
+                                        <li>npm</li>
+                                        <li>pnpm</li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium text-primary mb-2">其他工具</h5>
+                                    <ul class="space-y-1 text-gray-700 pl-5 list-disc">
+                                        <li>Vite（开发服务器）</li>
+                                        <li>Git（版本控制）</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 环境搭建步骤 -->
+                        <div>
+                            <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                                <i class="fa fa-list-ol text-primary mr-2"></i>2.3.2 环境搭建步骤
+                            </h4>
+                            
+                            <ol class="space-y-3 text-gray-700">
+                                <li class="flex">
+                                    <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">1</span>
+                                    <span>安装Node.js：确保本地环境已安装Node.js（建议版本18.x或更高）</span>
+                                </li>
+                                <li class="flex">
+                                    <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">2</span>
+                                    <span>克隆项目仓库：从代码仓库克隆项目代码</span>
+                                </li>
+                                <li class="flex">
+                                    <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">3</span>
+                                    <span>安装依赖：使用npm或pnpm安装项目依赖</span>
+                                </li>
+                                <li class="flex">
+                                    <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">4</span>
+                                    <span>启动开发服务器：<code class="bg-gray-100 px-1 py-0.5 rounded text-primary">npm run dev</code></span>
+                                </li>
+                                <li class="flex">
+                                    <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">5</span>
+                                    <span>访问应用：在浏览器中访问<code class="bg-gray-100 px-1 py-0.5 rounded text-primary">http://localhost:3000</code></span>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                        <pre># 安装依赖示例
+pnpm install
+
+# 启动开发服务器
+npm run dev</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 核心功能开发指南部分 -->
+        <section id="features" class="mb-20">
+            <div class="max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-4">三、核心功能开发指南</h2>
+                
+                <!-- 图片处理功能开发 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-picture-o text-primary mr-3"></i>3.1 图片处理功能开发
+                    </h3>
+                    
+                    <!-- 图片导入与基础处理 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-upload text-primary mr-2"></i>3.1.1 图片导入与基础处理
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现图片的批量导入、预览和基础处理功能，使用HTML5的input[type="file"]元素实现文件上传，FileReader API读取上传的图片文件，以及Compressor.js库实现图片压缩和预处理。
+                        </p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h5 class="font-medium text-primary mb-2">功能实现要点</h5>
+                            <ul class="space-y-1 text-gray-700 pl-5 list-disc">
+                                <li>支持批量图片导入</li>
+                                <li>实时图片预览功能</li>
+                                <li>客户端图片压缩优化</li>
+                                <li>支持常见图片格式（JPG、PNG、WEBP）</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>&lt;input type="file" id="fileInput" accept="image/*" multiple /&gt;
+&lt;div id="previewArea"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+  const fileInput = document.getElementById('fileInput');
+  const previewArea = document.getElementById('previewArea');
+
+  fileInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+      const compressedFile = await compressFile(file);
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(compressedFile);
+      previewArea.appendChild(img);
+    }
+  });
+
+  async function compressFile(file) {
+    return new Promise((resolve) => {
+      new Compressor(file, {
+        quality: 0.8,
+        success(result) {
+          resolve(result);
+        },
+        error(err) {
+          console.error('压缩失败:', err);
+        }
+      });
+    });
+  }
+&lt;/script&gt;</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- AI智能调色功能 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-magic text-primary mr-2"></i>3.1.2 AI智能调色功能
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现基于AI的智能调色功能，支持自动优化和风格化处理，使用@xenova/transformers库加载预训练的图像处理模型，实现基于WebGPU的模型推理加速。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>import { pipeline } from '@xenova/transformers';
+
+async function enhanceImage(image) {
+  const imageEnhancer = await pipeline('image-to-image', 'Xenova/image-enhancement');
+  const result = await imageEnhancer(image);
+  return result;
+}
+
+// 使用示例
+const inputImage = document.getElementById('inputImage');
+const enhancedImage = await enhanceImage(inputImage);</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 模板化处理与批量操作 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-th-large text-primary mr-2"></i>3.1.3 模板化处理与批量操作
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现基于模板的图片处理和批量操作功能，使用localStorage存储用户自定义模板，实现模板的创建、编辑和应用功能。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>// 保存模板到本地存储
+function saveTemplate(templateName, templateSettings) {
+  localStorage.setItem(`template-${templateName}`, JSON.stringify(templateSettings));
+}
+
+// 加载模板从本地存储
+function loadTemplate(templateName) {
+  return JSON.parse(localStorage.getItem(`template-${templateName}`));
+}
+
+// 应用模板到图片
+async function applyTemplate(image, template) {
+  let processedImage = image;
+  for (const operation of template.operations) {
+    switch (operation.type) {
+      case 'enhance':
+        processedImage = await enhanceImage(processedImage);
+        break;
+      case 'resize':
+        processedImage = await resizeImage(processedImage, operation.width, operation.height);
+        break;
+      // 其他操作...
+    }
+  }
+  return processedImage;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI文案生成功能开发 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-file-text text-primary mr-3"></i>3.2 AI文案生成功能开发
+                    </h3>
+                    
+                    <!-- 图像内容识别与分析 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-eye text-primary mr-2"></i>3.2.1 图像内容识别与分析
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现基于AI的图像内容识别和分析功能，使用@xenova/transformers库加载图像分类模型，实现图像内容分析，识别图像中的场景、物体和颜色等特征。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>import { pipeline } from '@xenova/transformers';
+
+async function analyzeImage(image) {
+  const imageAnalyzer = await pipeline('image-to-text', 'Xenova/blip-image-captioning-base');
+  const result = await imageAnalyzer(image);
+  return result[0].generated_text;
+}
+
+// 使用示例
+const image = document.getElementById('inputImage');
+const description = await analyzeImage(image);
+console.log('图像描述:', description);</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 平台适配文案生成 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-comment text-primary mr-2"></i>3.2.2 平台适配文案生成
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现基于图像内容和平台特性的文案生成功能，使用@xenova/transformers库加载文本生成模型，根据不同平台（朋友圈、小红书、贴吧等）的特点生成适配的文案。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+                            <pre>import { pipeline } from '@xenova/transformers';
+
+async function generateCaption(image, platform) {
+  const captionGenerator = await pipeline('text-generation', 'Xenova/gpt-2');
+  const prompt = `Generate a ${platform} caption for the following image: ${await analyzeImage(image)}`;
+  const result = await captionGenerator(prompt, { max_new_tokens: 50 });
+  return result[0].generated_text;
+}
+
+// 使用示例
+const image = document.getElementById('inputImage');
+const caption = await generateCaption(image, '朋友圈');
+console.log('生成的文案:', caption);</pre>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-weixin text-green-500 text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">朋友圈文案</h5>
+                                <p class="text-gray-600 text-sm">温馨、生活化的文案风格</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-book text-red-500 text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">小红书文案</h5>
+                                <p class="text-gray-600 text-sm">精致、详细的种草风格</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-comments text-blue-500 text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">贴吧文案</h5>
+                                <p class="text-gray-600 text-sm">活泼、互动性强的风格</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图文自动排版功能 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-th text-primary mr-2"></i>3.2.3 图文自动排版功能
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现图片和生成文案的自动排版功能，使用CSS Grid和Flexbox实现响应式图文排版，支持多种排版样式和自定义模板。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>&lt;div class="image-with-caption"&gt;
+  &lt;img src="image.jpg" alt="图片描述"&gt;
+  &lt;div class="caption"&gt;
+    &lt;h3&gt;标题&lt;/h3&gt;
+    &lt;p&gt;这里是生成的文案内容...&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  .image-with-caption {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .image-with-caption {
+      grid-template-columns: 1fr;
+    }
+  }
+&lt;/style&gt;</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 版权保护功能开发 -->
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-shield text-primary mr-3"></i>3.3 版权保护功能开发
+                    </h3>
+                    
+                    <!-- 可见水印功能 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-tint text-primary mr-2"></i>3.3.1 可见水印功能
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现图片的可见水印添加功能，使用Canvas API实现水印绘制，支持文字水印和图片水印，支持水印位置、透明度、大小等参数调整。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>function addWatermark(image, watermarkText, options = {}) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // 设置画布尺寸与图像一致
+  canvas.width = image.width;
+  canvas.height = image.height;
+
+  // 绘制原始图像
+  ctx.drawImage(image, 0, 0);
+
+  // 设置水印样式
+  ctx.font = `${options.fontSize || '20px'} Arial`;
+  ctx.fillStyle = `rgba(${options.color || '0,0,0'}, ${options.opacity || 0.5})`;
+  ctx.textAlign = options.align || 'center';
+  ctx.textBaseline = 'middle';
+
+  // 计算水印位置
+  const x = options.x || image.width / 2;
+  const y = options.y || image.height / 2;
+
+  // 绘制水印文本
+  ctx.fillText(watermarkText, x, y);
+
+  // 创建带有水印的新图像
+  const watermarkedImage = new Image();
+  watermarkedImage.src = canvas.toDataURL('image/jpeg');
+  return watermarkedImage;
+}
+
+// 使用示例
+const originalImage = document.getElementById('inputImage');
+const watermarkedImage = addWatermark(originalImage, '© 2025 PhotoStudio');</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 隐形水印与元数据保护 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-eye-slash text-primary mr-2"></i>3.3.2 隐形水印与元数据保护
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现隐形水印和元数据保护功能，使用exif-js库实现EXIF信息的读取和写入，实现隐形点阵水印技术，支持在导出时自动嵌入元数据版权信息。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>import EXIF from 'exif-js';
+
+function addCopyrightMetadata(file, copyrightInfo) {
+  return new Promise((resolve) => {
+    EXIF.getData(file, function() {
+      EXIF.setTag(this, "Copyright", copyrightInfo);
+      const newDataUrl = EXIF.write(this);
+      fetch(newDataUrl)
+        .then(res => res.blob())
+        .then(modifiedBlob => {
+          const modifiedFile = new File([modifiedBlob], file.name, { type: file.type });
+          resolve(modifiedFile);
+        });
+    });
+  });
+}
+
+// 使用示例
+const originalFile = document.getElementById('fileInput').files[0];
+const watermarkedFile = await addCopyrightMetadata(originalFile, '© 2025 PhotoStudio. All rights reserved.');</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 分享与传播控制 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-share-alt text-primary mr-2"></i>3.3.3 分享与传播控制
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现图片分享与传播控制功能，实现分享时的版权提示功能，支持动态水印和防截屏技术，实现多级权限设置，保障作品安全。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>function createProtectedImage(image, watermarkText) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // 设置画布尺寸与图像一致
+  canvas.width = image.width;
+  canvas.height = image.height;
+
+  // 绘制原始图像
+  ctx.drawImage(image, 0, 0);
+
+  // 添加动态水印
+  setInterval(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0);
+    ctx.fillText(`${watermarkText} - ${new Date().toISOString()}`, 10, canvas.height - 10);
+  }, 1000);
+
+  // 创建带有动态水印的新图像
+  const protectedImage = new Image();
+  protectedImage.src = canvas.toDataURL('image/jpeg');
+  return protectedImage;
+}
+
+// 使用示例
+const originalImage = document.getElementById('inputImage');
+const protectedImage = createProtectedImage(originalImage, '© 2025 PhotoStudio');</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 云存储与协作功能开发部分 -->
+        <section id="cloud" class="mb-20">
+            <div class="max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-4">四、云存储与协作功能开发</h2>
+                
+                <!-- 云存储集成开发 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-cloud text-primary mr-3"></i>4.1 云存储集成开发
+                    </h3>
+                    
+                    <!-- 百度网盘API集成 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-hdd-o text-primary mr-2"></i>4.1.1 百度网盘API集成
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现与百度网盘API的集成，提供云存储服务，使用百度网盘开放平台提供的JavaScript SDK，实现文件上传、下载、删除等基本操作。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>import BaiduNetdiskSdk from 'baidu-netdisk-sdk';
+
+const client = new BaiduNetdiskSdk({
+  client_id: 'YOUR_CLIENT_ID',
+  client_secret: 'YOUR_CLIENT_SECRET',
+  redirect_uri: 'YOUR_REDIRECT_URI'
+});
+
+// 获取授权URL
+const authorizeUrl = client.generateAuthorizeUrl();
+
+// 处理授权回调
+function handleAuthorizationCallback(code) {
+  client.getAccessToken(code)
+    .then((data) => {
+      client.setAccessToken(data.access_token);
+      // 授权成功，可以进行文件操作
+    });
+}
+
+// 上传文件示例
+async function uploadFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await client.post('/rest/2.0/xpan/file', {
+    method: 'upload',
+    path: `/${file.name}`,
+    formData: formData
+  });
+  return response;
+}</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 文件管理与版本控制 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-folder-open text-primary mr-2"></i>4.1.2 文件管理与版本控制
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现文件的管理和版本控制功能，实现文件的分类和标签管理，实现文件的版本控制和历史记录，支持文件的恢复和删除功能。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>// 文件版本管理示例
+class FileVersionManager {
+  constructor(fileId) {
+    this.fileId = fileId;
+    this.versions = [];
+  }
+
+  async saveVersion(file) {
+    const version = {
+      timestamp: new Date(),
+      file: file
+    };
+    this.versions.push(version);
+    await this.saveToCloud(version);
+  }
+
+  async getVersion(versionIndex) {
+    return this.versions[versionIndex];
+  }
+
+  async saveToCloud(version) {
+    // 实现将版本信息保存到云存储的逻辑
+  }
+}</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 多设备同步功能 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-refresh text-primary mr-2"></i>4.1.3 多设备同步功能
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现多设备间的文件同步功能，使用WebSocket实现实时同步，实现文件的增量同步和冲突解决机制，支持离线操作和同步恢复。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>const socket = new WebSocket('wss://api.example.com/sync');
+
+socket.addEventListener('open', () => {
+  // 发送同步请求
+  socket.send(JSON.stringify({ action: 'sync', userId: 'YOUR_USER_ID' }));
+});
+
+socket.addEventListener('message', (event) => {
+  const data = JSON.parse(event.data);
+  if (data.action === 'sync') {
+    // 处理同步数据
+    updateLocalFiles(data.files);
+  }
+});
+
+// 本地文件变化时触发同步
+function onLocalFileChange(file) {
+  socket.send(JSON.stringify({ action: 'update', file: file }));
+}</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 团队协作功能开发 -->
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-users text-primary mr-3"></i>4.2 团队协作功能开发
+                    </h3>
+                    
+                    <!-- 团队管理与权限控制 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-user-circle text-primary mr-2"></i>4.2.1 团队管理与权限控制
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现团队管理和权限控制功能，实现团队的创建、加入和退出功能，支持多层次的权限控制，实现成员管理和角色分配功能。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>class TeamManager {
+  constructor(teamId) {
+    this.teamId = teamId;
+    this.members = [];
+  }
+
+  addMember(userId, role) {
+    this.members.push({ userId, role });
+    // 保存到数据库
+  }
+
+  checkPermission(userId, permission) {
+    const member = this.members.find(m => m.userId === userId);
+    return member && member.role.includes(permission);
+  }
+}</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 评论与标注功能 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-comment-o text-primary mr-2"></i>4.2.2 评论与标注功能
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现图片的评论和标注功能，使用Canvas API实现图片标注功能，实现评论的添加、删除和回复功能，支持实时通知和消息提醒。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>&lt;div class="image-annotation"&gt;
+  &lt;canvas id="imageCanvas"&gt;&lt;/canvas&gt;
+  &lt;div class="annotations"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  const canvas = document.getElementById('imageCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // 加载图片并绘制到画布
+  const img = new Image();
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = 'image.jpg';
+
+  // 添加标注示例
+  function addAnnotation(x, y, text) {
+    const annotation = document.createElement('div');
+    annotation.className = 'annotation';
+    annotation.style.left = `${x}px`;
+    annotation.style.top = `${y}px`;
+    annotation.textContent = text;
+    document.querySelector('.annotations').appendChild(annotation);
+  }
+&lt;/script&gt;</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 项目管理功能 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-tasks text-primary mr-2"></i>4.2.3 项目管理功能
+                        </h4>
+                        <p class="text-gray-700 mb-4">
+                            实现摄影项目的全流程管理功能，实现项目的创建、编辑和删除功能，支持项目进度跟踪和任务分配，实现项目的分享和协作功能。
+                        </p>
+                        
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>class ProjectManager {
+  constructor(projectId) {
+    this.projectId = projectId;
+    this.tasks = [];
+  }
+
+  addTask(task) {
+    this.tasks.push(task);
+    // 保存到数据库
+  }
+
+  completeTask(taskId) {
+    const task = this.tasks.find(t => t.id === taskId);
+    task.completed = true;
+    // 保存到数据库
+  }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 系统测试与质量保障部分 -->
+        <section id="testing" class="mb-20">
+            <div class="max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-4">五、系统测试与质量保障</h2>
+                
+                <!-- 测试策略与方法 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-check-square-o text-primary mr-3"></i>5.1 测试策略与方法
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-gray-50 p-5 rounded-lg">
+                            <h4 class="text-lg font-medium text-primary mb-3 text-center">测试层次</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>单元测试</strong>：对独立的函数和组件进行测试</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>集成测试</strong>：测试组件之间的协作和接口</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>端到端测试</strong>：模拟用户场景进行全面测试</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-5 rounded-lg">
+                            <h4 class="text-lg font-medium text-primary mb-3 text-center">测试方法</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>黑盒测试</strong>：不考虑内部实现，只测试功能</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>白盒测试</strong>：测试内部代码结构和逻辑</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>自动化测试</strong>：使用测试框架实现自动化测试</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-5 rounded-lg">
+                            <h4 class="text-lg font-medium text-primary mb-3 text-center">测试工具</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>Jest</strong>：JavaScript测试框架</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>Cypress</strong>：端到端测试框架</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                                    <span><strong>Puppeteer</strong>：自动化浏览器测试</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 核心功能测试用例 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-list-alt text-primary mr-3"></i>5.2 核心功能测试用例
+                    </h3>
+                    
+                    <!-- 图片处理功能测试用例 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-picture-o text-primary mr-2"></i>5.2.1 图片处理功能测试用例
+                        </h4>
+                        
+                        <div class="overflow-x-auto mb-6">
+                            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="py-3 px-4 border-b text-left">测试步骤</th>
+                                        <th class="py-3 px-4 border-b text-left">预期结果</th>
+                                        <th class="py-3 px-4 border-b text-left">测试方法</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-3 px-4 border-b">上传一张大尺寸图片</td>
+                                        <td class="py-3 px-4 border-b">压缩后的图片尺寸和质量符合预期</td>
+                                        <td class="py-3 px-4 border-b">使用Compressor.js进行压缩测试</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="py-3 px-4 border-b">设置不同的压缩质量参数</td>
+                                        <td class="py-3 px-4 border-b">压缩后的图片质量随参数变化</td>
+                                        <td class="py-3 px-4 border-b">调整quality参数进行测试</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 px-4 border-b">上传不同格式的图片(JPG、PNG、WEBP)</td>
+                                        <td class="py-3 px-4 border-b">所有格式都能被正确压缩</td>
+                                        <td class="py-3 px-4 border-b">使用不同格式的图片进行测试</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="py-3 px-4 border-b text-left">测试步骤</th>
+                                        <th class="py-3 px-4 border-b text-left">预期结果</th>
+                                        <th class="py-3 px-4 border-b text-left">测试方法</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-3 px-4 border-b">上传一张曝光不足的图片</td>
+                                        <td class="py-3 px-4 border-b">AI能自动优化曝光和色彩</td>
+                                        <td class="py-3 px-4 border-b">使用不同光照条件的图片进行测试</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="py-3 px-4 border-b">上传不同场景的图片(人像、风景、夜景)</td>
+                                        <td class="py-3 px-4 border-b">AI能根据场景进行针对性优化</td>
+                                        <td class="py-3 px-4 border-b">使用不同场景的图片进行测试</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 px-4 border-b">多次处理同一张图片</td>
+                                        <td class="py-3 px-4 border-b">结果一致，无明显质量下降</td>
+                                        <td class="py-3 px-4 border-b">重复测试同一张图片</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 性能测试与优化 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-tachometer text-primary mr-2"></i>5.3 性能测试与优化
+                        </h4>
+                        
+                        <div class="mb-6">
+                            <h5 class="font-medium text-primary mb-3">性能测试指标</h5>
+                            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2 text-center">响应时间</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• 页面加载时间</li>
+                                        <li>• 操作响应时间</li>
+                                        <li>• 处理时间</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2 text-center">资源占用</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• CPU使用率</li>
+                                        <li>• 内存使用</li>
+                                        <li>• 网络带宽</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2 text-center">吞吐量</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• 图片处理速度</li>
+                                        <li>• 文件上传下载速度</li>
+                                        <li>• 并发处理能力</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- 性能对比图表 -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <h5 class="font-medium text-primary mb-3">图像处理性能对比</h5>
+                                <div class="h-64">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-medium text-primary mb-3">性能优化策略</h5>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2">代码优化</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm pl-5 list-disc">
+                                        <li>优化算法复杂度</li>
+                                        <li>实现惰性加载和按需加载</li>
+                                        <li>使用Web Workers处理耗时任务</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2">资源优化</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm pl-5 list-disc">
+                                        <li>压缩和优化静态资源</li>
+                                        <li>使用缓存技术减少重复请求</li>
+                                        <li>实现图片的渐进式加载</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2">渲染优化</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm pl-5 list-disc">
+                                        <li>使用CSS硬件加速</li>
+                                        <li>减少重绘和回流</li>
+                                        <li>实现虚拟滚动</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h6 class="font-medium text-gray-800 mb-2">并行处理</h6>
+                                    <ul class="space-y-1 text-gray-700 text-sm pl-5 list-disc">
+                                        <li>使用WebAssembly加速计算</li>
+                                        <li>实现并行处理和任务分块</li>
+                                        <li>使用GPU加速AI模型推理</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 未来发展规划部分 -->
+        <section id="future" class="mb-20">
+            <div class="max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-4">七、未来发展规划</h2>
+                
+                <!-- 产品迭代路线图 -->
+                <div class="bg-white rounded-xl shadow-card p-6 mb-8 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-road text-primary mr-3"></i>7.1 产品迭代路线图
+                    </h3>
+                    
+                    <div class="relative">
+                        <!-- 时间线 -->
+                        <div class="absolute left-0 md:left-1/2 h-full w-0.5 bg-primary/20 transform md:-translate-x-1/2"></div>
+                        
+                        <!-- 第一阶段 -->
+                        <div class="relative mb-10 md:mb-16">
+                            <div class="flex flex-col md:flex-row items-center">
+                                <div class="md:w-1/2 md:pr-12 md:text-right mb-4 md:mb-0">
+                                    <div class="bg-primary/10 p-4 rounded-lg">
+                                        <h4 class="text-xl font-semibold text-primary mb-2">第一阶段（3个月内）</h4>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li>• 完成核心修图功能的开发和优化</li>
+                                            <li>• 实现基础的AI智能调色和风格化处理</li>
+                                            <li>• 完成基本的用户界面和交互设计</li>
+                                            <li>• 实现基础的图片管理和导出功能</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full transform -translate-x-1/2"></div>
+                                <div class="md:w-1/2 md:pl-12"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 第二阶段 -->
+                        <div class="relative mb-10 md:mb-16">
+                            <div class="flex flex-col md:flex-row items-center">
+                                <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
+                                <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full transform -translate-x-1/2"></div>
+                                <div class="md:w-1/2 md:pl-12">
+                                    <div class="bg-primary/10 p-4 rounded-lg">
+                                        <h4 class="text-xl font-semibold text-primary mb-2">第二阶段（3-6个月）</h4>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li>• 实现完整的版权保护功能</li>
+                                            <li>• 完成云存储和文件管理功能</li>
+                                            <li>• 实现基本的团队协作和项目管理</li>
+                                            <li>• 开发移动端适配版本</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 第三阶段 -->
+                        <div class="relative">
+                            <div class="flex flex-col md:flex-row items-center">
+                                <div class="md:w-1/2 md:pr-12 md:text-right mb-4 md:mb-0">
+                                    <div class="bg-primary/10 p-4 rounded-lg">
+                                        <h4 class="text-xl font-semibold text-primary mb-2">第三阶段（6-12个月）</h4>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li>• 实现高级AI功能，如风格迁移和智能构图</li>
+                                            <li>• 完成完整的商业模型和付费功能</li>
+                                            <li>• 实现多语言支持和国际化</li>
+                                            <li>• 构建完整的生态系统和合作伙伴集成</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full transform -translate-x-1/2"></div>
+                                <div class="md:w-1/2 md:pl-12"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 商业模式与盈利策略 -->
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all-300">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-money text-primary mr-3"></i>7.3 商业模式与盈利策略
+                    </h3>
+                    
+                    <p class="text-gray-700 mb-6">
+                        本项目采用Freemium商业模式，基础功能免费，高级功能付费，为摄影师提供灵活的使用选择。
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <!-- 基础免费版 -->
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                            <div class="text-center mb-4">
+                                <div class="inline-block bg-green-100 text-green-800 px-4 py-1 rounded-full text-sm font-medium mb-3">免费</div>
+                                <h4 class="text-xl font-semibold text-gray-800">基础免费版</h4>
+                            </div>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>提供核心修图功能</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>支持基本的图片处理和导出</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>有限的云存储容量（1GB）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>基础的版权保护功能</span>
+                                </li>
+                                <li class="flex items-start text-gray-400">
+                                    <i class="fa fa-times mt-1 mr-2"></i>
+                                    <span>高级AI功能（不可用）</span>
+                                </li>
+                                <li class="flex items-start text-gray-400">
+                                    <i class="fa fa-times mt-1 mr-2"></i>
+                                    <span>团队协作功能（不可用）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 高级订阅版 -->
+                        <div class="bg-primary/5 p-5 rounded-lg border-2 border-primary relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-primary text-white px-3 py-1 text-sm font-medium">
+                                推荐
+                            </div>
+                            <div class="text-center mb-4">
+                                <div class="inline-block bg-primary/20 text-primary px-4 py-1 rounded-full text-sm font-medium mb-3">付费</div>
+                                <h4 class="text-xl font-semibold text-gray-800">高级订阅版</h4>
+                                <div class="text-2xl font-bold text-primary mt-2">¥99<span class="text-sm font-normal text-gray-600">/月</span></div>
+                                <div class="text-sm text-gray-500">或 ¥799/年（省¥389）</div>
+                            </div>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>解锁全部AI功能和高级算法</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>提供无限制的云存储</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>团队协作功能（最多5人）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>高级版权保护和元数据管理</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>优先客户支持</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>高级功能更新</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4 text-center">
+                                <a href="#" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                                    立即订阅
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 增值服务 -->
+                    <div>
+                        <h4 class="text-xl font-medium text-gray-800 mb-3">增值服务</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-picture-o text-primary text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">专业AI修图服务</h5>
+                                <p class="text-gray-600 text-sm">按张计费，¥5-20/张</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-th text-primary text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">定制化模板服务</h5>
+                                <p class="text-gray-600 text-sm">¥199-999/套</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fa fa-book text-primary text-2xl mb-2"></i>
+                                <h5 class="font-medium text-gray-800 mb-1">摄影培训订阅</h5>
+                                <p class="text-gray-600 text-sm">¥199/月</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 结语部分 -->
+        <section class="mb-12">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-xl shadow-card p-8 hover:shadow-card-hover transition-all-300 border-l-4 border-primary">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">九、结语</h2>
+                    <p class="text-gray-700 mb-4">
+                        本开发文档详细描述了摄影师全流程智能协作平台的技术实现路径和开发计划。项目将以"效率提升、风格统一、版权无忧"为核心价值主张，通过Web技术栈和AI技术的深度融合，为摄影师打造一站式创作中心。
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        项目采用渐进式开发策略，从核心修图功能起步，逐步拓展至版权保护和云存储功能，最终形成完整的摄影工作流生态系统。产品将采用Freemium商业模式，基础功能免费，高级功能付费，为摄影师提供灵活的使用选择。
+                    </p>
+                    <p class="text-gray-700">
+                        未来，随着技术的不断发展和用户需求的变化，产品将持续演进和扩展，探索更多创新功能和应用场景，为摄影师提供更全面、更智能的服务。我们相信，通过技术创新和用户价值创造，本产品将成为摄影师不可或缺的创作工具。
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚部分 -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fa fa-camera-retro text-primary text-2xl"></i>
+                            <h3 class="text-xl font-bold">摄影师智能协作平台</h3>
+                        </div>
+                        <p class="text-gray-400 mb-4">
+                            效率提升、风格统一、版权无忧的一站式摄影解决方案，为摄影师打造全流程智能协作平台。
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-weixin text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-twitter text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-linkedin text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">快速导航</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#overview" class="text-gray-400 hover:text-white transition-colors">项目概述</a></li>
+                            <li><a href="#architecture" class="text-gray-400 hover:text-white transition-colors">技术架构</a></li>
+                            <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">核心功能</a></li>
+                            <li><a href="#cloud" class="text-gray-400 hover:text-white transition-colors">云存储</a></li>
+                            <li><a href="#testing" class="text-gray-400 hover:text-white transition-colors">测试保障</a></li>
+                            <li><a href="#future" class="text-gray-400 hover:text-white transition-colors">未来规划</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <i class="fa fa-envelope text-primary mt-1 mr-2"></i>
+                                <span class="text-gray-400">support@photostudio.com</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-phone text-primary mt-1 mr-2"></i>
+                                <span class="text-gray-400">400-123-4567</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-map-marker text-primary mt-1 mr-2"></i>
+                                <span class="text-gray-400">北京市海淀区中关村科技园</span>
+                            </li>
+                        </ul>
+                        <div class="mt-4">
+                            <a href="#" class="inline-block bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                                联系销售
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                    <p>© 2025 摄影师全流程智能协作平台. 保留所有权利.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90 focus:outline-none">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript代码 -->
+    <script>
+        // 移动端菜单切换
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = menuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                // 关闭移动端菜单（如果打开）
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    const icon = menuBtn.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // 回到顶部按钮
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'invisible');
+                backToTopBtn.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopBtn.classList.remove('opacity-100', 'visible');
+                backToTopBtn.classList.add('opacity-0', 'invisible');
+            }
+            
+            // 导航栏滚动效果
+            const header = document.querySelector('header');
+            if (window.pageYOffset > 50) {
+                header.classList.add('shadow-lg');
+                header.classList.remove('shadow-md');
+            } else {
+                header.classList.remove('shadow-lg');
+                header.classList.add('shadow-md');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // 性能对比图表
+        window.addEventListener('load', () => {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['传统JS处理', 'WebAssembly', 'WebGPU加速', '本系统'],
+                    datasets: [{
+                        label: '图像处理速度（毫秒/张）',
+                        data: [1200, 550, 320, 280],
+                        backgroundColor: [
+                            'rgba(156, 163, 175, 0.5)',
+                            'rgba(59, 130, 246, 0.5)',
+                            'rgba(37, 99, 235, 0.5)',
+                            'rgba(79, 70, 229, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(156, 163, 175, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(37, 99, 235, 1)',
+                            'rgba(79, 70, 229, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '处理时间（毫秒）'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '处理技术'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `处理时间: ${context.raw} 毫秒`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
