@@ -103,4 +103,4 @@ theme: fluid
 deploy:
   type: git
   repo: git@github.com:s1yle/s1yle.github.io.git
-  branch: main
+  branch: dev-2
