@@ -2,6 +2,7 @@
 title: DAILY
 date: 2026-01-09 23:47:15
 tags: diary
+comments: true
 ---
 
 # 一次特别的尝试：我的首次开源贡献与博客部署
