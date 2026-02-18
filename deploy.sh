@@ -9,5 +9,6 @@ git push origin dev-2
 
 echo "使用 hexo 部署博客"
 hexo clean
-hexo g
+# （可选）生成静态文件
+# hexo g
 hexo d
