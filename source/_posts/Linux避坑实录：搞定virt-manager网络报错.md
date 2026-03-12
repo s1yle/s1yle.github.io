@@ -1,5 +1,5 @@
 ---
-title: Linux避坑实录：搞定virt-manager网络报错
+title: Linux避坑实录：virt-manager那些事
 date: 2026-03-12 22:11:21
 tags: linux
 ---
