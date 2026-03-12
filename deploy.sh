@@ -8,7 +8,7 @@ git commit -m "deploy"
 git push origin dev-2
 
 echo "使用 hexo 部署博客"
-hexo clean
+pnpm hexo clean
 # （可选）生成静态文件
-# hexo g
-hexo d
+# pnpm hexo g
+pnpm hexo d
