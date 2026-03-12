@@ -2,8 +2,8 @@
 layout: title
 title: MCLauncher
 date: 2026-02-18 18:28:03
-tags:
-top: true
+tags: product
+top: 100
 ---
 
 # 关于我的启动器
