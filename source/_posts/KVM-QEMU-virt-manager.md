@@ -1,5 +1,5 @@
 ---
-title: Linux 教学视角详解 KVM+QEMU+virt-manager
+title: Linux教学视角详解： KVM+QEMU+virt-manager
 date: 2026-03-12 22:35:28
 tags: linux
 ---
