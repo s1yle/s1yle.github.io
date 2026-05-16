@@ -1,5 +1,5 @@
 ---
-title: Linux避坑实录：virt-manager那些事
+title: Linux：virt-manager那些事
 date: 2026-03-12 22:11:21
 tags: linux
 ---
@@ -33,13 +33,17 @@ tags: linux
 Arch采用模块化libvirt架构，摒弃传统单一libvirtd服务，优先启动模块化守护进程，避免冲突，解决套接字缺失问题：
 
 #### 启动网络、虚拟化、存储三大模块化服务
+
 `sudo systemctl start virtnetworkd virtqemud virtstoraged`
+
 #### 设置开机自启
+
 `sudo systemctl enable virtnetworkd virtqemud virtstoraged`
 
 ### 步骤2：生成一个默认配置文件（如果没有）
 
 #### 示例配置文件(实测有效)
+
 ```
 # 1. 创建default网络的配置目录
 sudo mkdir -p /etc/libvirt/qemu/networks/
@@ -70,10 +74,15 @@ EOF
 激活已定义的 `default` 网络，无需重新定义配置文件:
 
 #### 直接启动default网络
+
 `sudo virsh net-start default`
+
 #### 设置网络开机自启，重启后自动激活
+
 `sudo virsh net-autostart default`
+
 #### 验证网络状态
+
 `sudo virsh net-list --all`
 
 ## 四、修复成功效果验证
@@ -85,4 +94,3 @@ EOF
 - 打开 `virt-manager` ，创建新虚拟机时，网络选项会自动识别 `default NAT` 网络，无需手动配置，创建虚拟机不再报任何网络相关错误，虚拟机可正常联网；
 
 - 再次执行 `sudo virsh net-start default` 无报错
-

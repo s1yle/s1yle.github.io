@@ -1,5 +1,5 @@
 ---
-title: xorg_wayl_gtk_webkitgtk
+title: Linux:图形栈(xorg_wayl_gtk_webkitgtk)
 date: 2026-03-09 21:13:11
 tags: linux
 ---
@@ -92,7 +92,6 @@ tags: linux
 |性能|较低，延迟高|极高，延迟低|
 |配套依赖|可独立运行|需搭配Wayland合成器（如Sway）|
 |适用场景|老旧设备、兼容优先、开发调试|现代设备、日常使用、新应用开发|
-**关键补充**：你用到的**Sway**，就是专门为Wayland设计的**平铺式合成器/窗口管理器**，相当于Wayland协议的“执行者”，没有Sway这类合成器，Wayland根本无法运行；而Xorg可以直接作为窗口管理器使用，不需要额外合成器。
 
 ---
 
@@ -140,11 +139,11 @@ WebKit是Safari、早期Chrome的核心网页引擎，负责解析HTML/CSS/JS、
 
 - **Tauri应用的核心**：Tauri是“前端网页+后端Rust”的桌面框架，Linux端实现WebView的唯一依赖就是WebKitGTK，这也是你开发MC启动器的核心底层依赖。
 
-**避坑提醒**：WebKitGTK≠WebGTK，没有“WebGTK”这个官方组件，这是日常口误导致的误称，正确名称是**WebKitGTK**，常用版本为webkit2gtk-4.1，你的Fedora 43自带的就是2.50.5版本。
+**避坑提醒**：WebKitGTK≠WebGTK，没有“WebGTK”这个官方组件，这是日常口误导致的误称，正确名称是**WebKitGTK**，常用版本为webkit2gtk-4.1
 
 ---
 
-# 五、关联组件补充：Wry与Tauri（贴合你的开发场景）
+# 五、关联组件补充：Wry与Tauri(基于开发环境)
 
 结合你的Tauri开发场景，最后补充这两个关键封装库，帮你串联所有组件关系：
 
@@ -152,7 +151,7 @@ WebKit是Safari、早期Chrome的核心网页引擎，负责解析HTML/CSS/JS、
 
 - **Tauri**：上层桌面应用框架，基于Rust开发，封装了Wry、窗口管理、系统调用等能力，让前端开发者能快速打包网页为桌面应用；
 
-**完整依赖链（你的开发环境）**：
+**完整依赖链**：
 
 Fedora 43 → Linux内核 → Wayland协议 → Sway合成器 → GTK4 → WebKitGTK 2.50.5 → Wry 0.54.2 → Tauri 2.10.3 → 你的MC启动器
 
@@ -160,7 +159,7 @@ Fedora 43 → Linux内核 → Wayland协议 → Sway合成器 → GTK4 → WebKi
 
 ---
 
-# 六、全文总结：快速区分核心组件
+# 六、总结: 快速区分核心组件
 
 1. **Xorg/Wayland**：底层显示规则，新旧替代关系，决定图形渲染的基础模式；
 
@@ -172,12 +171,3 @@ Fedora 43 → Linux内核 → Wayland协议 → Sway合成器 → GTK4 → WebKi
 
 5. **Wry/Tauri**：上层封装框架，基于底层组件实现跨平台桌面应用。
 
-## 最后给开发者的建议
-
-- 不要轻易降级Wayland/Sway/GTK/WebKitGTK这类系统级组件，极易破坏依赖链，导致桌面崩溃；
-
-- Wayland是未来趋势，兼容问题可通过环境变量、开启对应特性解决，而非退回Xorg；
-
-- Tauri开发中，wry版本跟随Tauri官方默认即可，避免手动降级，优先排查环境适配问题。
-
-搞懂Linux图形栈的层级关系，很多看似复杂的兼容问题、依赖报错，都会瞬间找到根源，不用再盲目试错～
