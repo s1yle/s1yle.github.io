@@ -3,7 +3,7 @@ layout: title
 title: MCLauncher
 date: 2026-02-18 18:28:03
 tags: product
-top: 100
+top: 10000
 ---
 
 # 关于我的启动器
@@ -22,12 +22,14 @@ top: 100
 
 - QQ 联系方式：1373003655
 - QQ 群（MC群）：1077212471
-- GitHub 仓库：https://github.com/s1yle/s1yle-launcher
+- GitHub 仓库：<https://github.com/s1yle/s1yle-launcher>
 
 ****
 
 # 项目构建和未来愿景
+
 ## 项目工具链
+
 - tauri
 - ts + react 前端
 - rust 后端
@@ -41,6 +43,7 @@ top: 100
 ## TODO 未来计划
 
 > 希望能做出一个有特色的启动器
+
 - 获取版本列表
 - 下载不同版本
 - 获取java环境
@@ -49,6 +52,7 @@ top: 100
 ## 历史版本
 
 #### v0.1.2
+
 - 完善account模块，支持新增、删除、选中账号
 - 支持添加离线账号，并持久化存储
 
@@ -64,3 +68,4 @@ v0.1.1
 
 v0.1.2
 ![alt text](../imgs/mclauncher-v012.png)
+
