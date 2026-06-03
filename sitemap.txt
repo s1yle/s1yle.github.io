@@ -1,3 +1,4 @@
+https://s1yle.github.io/2026/06/03/post/
 https://s1yle.github.io/2026/02/18/MCLauncher/
 https://s1yle.github.io/2026/05/17/wayland_lack_of_remotedesktop/
 https://s1yle.github.io/2026/03/12/KVM-QEMU-virt-manager/
