@@ -1,3 +1,4 @@
+https://s1yle.github.io/2026/06/29/brotato-http-server/
 https://s1yle.github.io/2026/06/03/%E9%80%83%E8%B7%91%E8%AE%A1%E5%88%92-%E9%87%8D%E6%9D%A5/
 https://s1yle.github.io/2026/02/18/MCLauncher/
 https://s1yle.github.io/2026/05/17/wayland_lack_of_remotedesktop/
@@ -14,8 +15,9 @@ https://s1yle.github.io/2026/01/09/DAILY/
 https://s1yle.github.io/2026/02/03/DiaryofTwoweeksMC/
 https://s1yle.github.io/daily/index.html
 https://s1yle.github.io/
-https://s1yle.github.io/tags/lyrics/
 https://s1yle.github.io/tags/diary/
+https://s1yle.github.io/tags/lyrics/
 https://s1yle.github.io/tags/linux/
 https://s1yle.github.io/tags/product/
+https://s1yle.github.io/tags/game/
 
