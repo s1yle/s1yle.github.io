@@ -1,3 +1,5 @@
+https://s1yle.github.io/2026/10/23/post/
+https://s1yle.github.io/2026/10/14/awesun_failed/
 https://s1yle.github.io/2026/06/29/brotato-http-server/
 https://s1yle.github.io/2026/06/03/%E9%80%83%E8%B7%91%E8%AE%A1%E5%88%92-%E9%87%8D%E6%9D%A5/
 https://s1yle.github.io/2026/02/18/MCLauncher/
@@ -20,4 +22,5 @@ https://s1yle.github.io/tags/lyrics/
 https://s1yle.github.io/tags/linux/
 https://s1yle.github.io/tags/product/
 https://s1yle.github.io/tags/game/
+https://s1yle.github.io/tags/article/
 
