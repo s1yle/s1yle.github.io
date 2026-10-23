@@ -1,5 +1,5 @@
 ---
-title: post
+title: 向日葵 linux 错误
 date: 2026-10-14 14:25:00
 tags: linux
 ---
